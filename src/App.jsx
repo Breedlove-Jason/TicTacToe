@@ -5,6 +5,11 @@ import Log from './components/Log/Log.jsx';
 import { WINNING_COMBINATIONS } from './winningCombinations.js';
 import GameOver from './components/GameOver/GameOver.jsx';
 
+/**
+ * Derive the active player based on the last move.
+ * @param {Array} gameTurns - The list of game turns.
+ * @returns {string} The symbol of the active player ('X' or 'O').
+ */
 function deriveActivePlayer(gameTurns) {
   let currentPlayer = 'X';
   if (gameTurns.length > 0 && gameTurns[0].player === 'X') {
@@ -26,14 +31,17 @@ function App() {
 
   const activePlayer = deriveActivePlayer(gameTurns);
 
+  // Deep copy of the initial game board
   let gameBoard = [...initialGameBoard.map((array) => [...array])];
+
+  // Update game board based on the turns played
   for (const turn of gameTurns) {
     const { square, player } = turn;
     const { row, col } = square;
     gameBoard[row][col] = player;
   }
 
-  // Check for a winner only if there isn't one yet
+  // Check for a winner if there isn't one already
   if (!winner) {
     for (const combination of WINNING_COMBINATIONS) {
       const firstSquareSymbol =
@@ -48,14 +56,20 @@ function App() {
         firstSquareSymbol === secondSquareSymbol &&
         firstSquareSymbol === thirdSquareSymbol
       ) {
-        // setWinner(firstSquareSymbol);
-        setWinner(players[firstSquareSymbol]);
+        setWinner(players[firstSquareSymbol]); // Set the winner's name
       }
     }
   }
+
   const hasDraw = gameTurns.length === 9 && !winner;
+
+  /**
+   * Handle the selection of a square by a player.
+   * @param {number} rowIndex - The row index of the selected square.
+   * @param {number} colIndex - The column index of the selected square.
+   */
   function handleSelectSquare(rowIndex, colIndex) {
-    if (winner || hasDraw) return; // Prevent further moves if there's a winner
+    if (winner || hasDraw) return; // Prevent further moves if there's a winner or a draw
 
     setGameTurns((prevTurns) => {
       const currentPlayer = deriveActivePlayer(prevTurns);
@@ -66,10 +80,20 @@ function App() {
       return updatedTurns;
     });
   }
+
+  /**
+   * Restart the game by resetting the game state.
+   */
   function handleRestartGame() {
     setGameTurns([]);
     setWinner(null);
   }
+
+  /**
+   * Handle changing a player's name.
+   * @param {string} symbol - The symbol of the player ('X' or 'O').
+   * @param {string} newName - The new name of the player.
+   */
   function handlePlayerNameChange(symbol, newName) {
     setPlayers((prevPlayers) => {
       return { ...prevPlayers, [symbol]: newName };
@@ -79,7 +103,7 @@ function App() {
   return (
     <main>
       <div id="game-container">
-        {/* PLAYERS */}
+        {/* Players List */}
         <ol id={'players'} className={'highlight-player'}>
           <Player
             initialName={'Player 1'}
@@ -95,13 +119,14 @@ function App() {
           />
         </ol>
 
-        {/* GAME BOARD */}
+        {/* Game Board */}
         {(winner || hasDraw) && (
           <GameOver winner={winner} onRestart={handleRestartGame} />
         )}
         <GameBoard onSelectSquare={handleSelectSquare} board={gameBoard} />
       </div>
-      {/* LOG */}
+
+      {/* Log of Turns */}
       <Log turns={gameTurns} />
     </main>
   );

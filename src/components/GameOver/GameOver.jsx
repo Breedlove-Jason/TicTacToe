@@ -1,14 +1,13 @@
-import React from 'react';
-
+/**
+ * GameOver component for displaying the game over message.
+ * @param {string} winner - The name of the winning player.
+ * @param {Function} onRestart - Callback function to restart the game.
+ */
 function GameOver({ winner, onRestart }) {
   return (
-    <div id={'game-over'}>
-      <h2>Game Over</h2>
-      {winner && <p>{winner} won!</p>}
-      {!winner && <p>It&apos;s a draw!</p>}
-      <p>
-        <button onClick={onRestart}>Rematch!</button>
-      </p>
+    <div id="game-over">
+      <p>{winner ? `${winner} wins!` : "It's a draw!"}</p>
+      <button onClick={onRestart}>Rematch!</button>
     </div>
   );
 }
